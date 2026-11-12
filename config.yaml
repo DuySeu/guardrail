@@ -1,0 +1,33 @@
+# Guardrail config. Guards run top to bottom; order them cheap to expensive.
+# OPENROUTER_API_KEY (and optional OPENROUTER_BASE_URL) come from the environment / .env.
+# Model ids: see ModelId in core/constants.py (./scripts/sync_models.sh refreshes it).
+input:
+  - type: max_length
+    limit: 8000
+  - type: regex
+    name: pii
+    presets: [email, phone_vn, credit_card]
+    action: redact
+  - type: keyword
+    name: denylist
+    file: denylist.txt
+    action: block
+  - type: embedding
+    name: known_jailbreaks
+    mode: deny
+    examples: jailbreaks.txt
+    model: nvidia/nemotron-3.5-embed-1b:free
+    threshold: 0.82
+  - type: llm_judge
+    name: injection
+    model: google/gemma-4-31b-it:free
+    categories: [prompt_injection, harmful]
+    threshold: 0.7
+    timeout_s: 15
+    on_error: block
+
+output:
+  - type: regex
+    name: secrets
+    presets: [api_key, email]
+    action: redact

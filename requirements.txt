@@ -1,0 +1,10 @@
+# core: copy along with core/ into production
+pydantic==2.14.1
+PyYAML==6.0.3
+httpx==0.28.1
+
+# eval and main.py
+python-dotenv==1.2.4
+
+# tests
+pytest==9.1.1
