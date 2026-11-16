@@ -6,13 +6,13 @@ Configurable LLM guardrail (input and output checks: allow, redact, block) plus 
 
 ## Commands
 
-Run everything from the repo root with the shared Lab venv at `../.venv` (Python 3.12, managed by uv, has no pip). Do not create a local `.venv`.
+Run everything from the repo root with the shared Lab venv at `../.venv` (Python 3.12, managed by uv, has no pip). Do not create a local `.venv` in this repo: no `uv venv`, no `uv sync`/`uv run` without `UV_PROJECT_ENVIRONMENT=../.venv` (they create `./.venv`). Dependencies live in `pyproject.toml` + `uv.lock` (groups: core in `dependencies`, `eval`, `dev`); add one with `uv add --no-sync <pkg>` (`--group eval|dev` if it is not core), then sync. Keep `--inexact` so packages of the other Lab repos stay installed.
 
 ```sh
 ../.venv/bin/python -m pytest tests                                   # all tests, no network
 ../.venv/bin/python -m pytest tests/test_pipeline.py::test_stops_after_first_block
 ../.venv/bin/ruff check . && ../.venv/bin/ruff format --check .        # ruff defaults, line length 88
-uv pip install --python ../.venv/bin/python -r requirements.txt       # add missing deps
+UV_PROJECT_ENVIRONMENT=../.venv uv sync --inexact                     # install pyproject.toml + uv.lock
 
 ../.venv/bin/python main.py check "text" [--stage output --user-input "q"] [--config config.yaml]
 ../.venv/bin/python main.py eval --dataset datasets/sample.jsonl [--isolate] [--concurrency 4] [--categories prompt_injection]
